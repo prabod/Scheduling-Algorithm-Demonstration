@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    var i = $("#form").size() + 1;
+    var i = $("#form").size()+1;
+
 
     $("#add").click(function () {
         if (i <= 5) {
@@ -13,23 +14,27 @@ $(document).ready(function () {
         </div>\
         </div>"
             );
+
             i++;
+            console.log(i);
         }
     });
 
     $("#simulate").click(function (e) {
         e.preventDefault();
-        var canvas = document.getElementById('canvas');
-        var two = new Two({width: 1000, height: 1000}).appendTo(canvas);
-        var group = new Two.Group();
-        group.translation.set(250, 250);
-        group.scale = 1;
-        two.add(group);
-        FCFS(two, group);
-        two.update();
+        var error = false;
+        /*for(var k =1;k<=i;k++){
+            if(!$("burstTime"+k).val()){
+                $("burstTime"+k).addClass('warning');
+                error = true;
+            }
+        }\
+        */
+        $("#barpanel").empty();
+        if(!error){FCFS()}
     });
 
-    function FCFS(two, group) {
+    function FCFS() {
         var process = [];
         var rectangles = [];
         var waitingTime = [0];
@@ -46,22 +51,38 @@ $(document).ready(function () {
                 waitingTime.push(wt);
             }
         }
-        var scale = 500 / totalTime;
+        var scale = Math.round(500 / totalTime);
+        console.log(scale);
+        console.log(waitingTime);
         for (var j = 1; j < i; j++) {
-            var rect = two.makeRectangle(scale * waitingTime[j - 1], (j) * 100, scale * process[j - 1], 100);
-            rect.fill = 'rgba(' + 90 * j % 255 + ',' + 26 * j % 255 + ', ' + 60 * j % 255 + ', 0.75)';
-            rect.stroke = '#1C75BC';
-            two.update();
-            rectangles.push(rect);
-            group.add(rect);
-            //sleep(process[j-1]);
-
+            $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;width:"+scale * process[j - 1]+"px;margin-left: "+scale * waitingTime[j - 1]+"px' id='bar"+j+"'></div>");
+            console.log(scale * waitingTime[j - 1] +' '+ scale * process[j - 1]);
+            //$("#bar"+j).delay(1000);
+            setTimeout(visualize,waitingTime[j - 1] *1000,'#bar'+j,process[j - 1]);
         }
         console.log(waitingTime);
     }
 
-    function sleep(seconds) {
-        var e = new Date().getTime() + (seconds * 1000);
+    function visualize(container,duration) {
+        var bar = new ProgressBar.Line(container, {
+            strokeWidth: 4,
+            easing: 'easeInOut',
+            duration: duration*1000,
+            color: '#FFEA82',
+            svgStyle: {width: '100%', height: '100%'},
+            from: {color: '#FFEA82'},
+            to: {color: '#ED6A5A'},
+            step: (state, bar) => {
+                bar.path.setAttribute('stroke', state.color);
+            }
+        });
+
+        bar.animate(1.0);  // Number from 0.0 to 1.0
+
+    }
+
+    function callback(duration){
+        var e = new Date().getTime() + (duration * 1000);
         while (new Date().getTime() <= e) {
         }
     }

@@ -15,6 +15,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
     <script src="js/two.min.js"></script>
+    <script src="js/progressbar.js"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -43,8 +44,8 @@
                     <div class="col-lg-4">
                         <input type="number" min="1" max="10" class="form-control" id="burstTime1" name="process1">
                     </div>
-                    <div>
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true" id="add"> Add Another</span>
+                    <div class="btn btn-default" id="add">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true" > Add Another</span>
                     </div>
                 </div>
             </form>
@@ -54,6 +55,8 @@
     <div class="row">
         <div id="canvas"></div>
     </div>
+
+    <div class="row" id="barpanel" style="margin-top: 5px"></div>
 </div>
 
 <script src="js/jquery.min.js"></script>
