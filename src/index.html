@@ -27,16 +27,34 @@
 <div class="container">
     <h1>Operating Systems Scheduling Demonstration</h1>
     <div class="row">
-        <div class="col-lg-6">
-            <form class="form-inline" id="form">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <label>Process Name</label>
-                    </div>
-                    <div class="col-lg-4">
-                        <label>Burst Time</label>
-                    </div>
+        <div class="row">
+            <div class="btn-group" data-toggle="buttons">
+                <div class="radio">
+                    <label><input type="radio" name="q[1]" id="fcfs" checked>First Come First Serve</label>
                 </div>
+                <div class="radio">
+                    <label><input type="radio" name="q[1]" id="sjf">Shortest Job First</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="btn btn-default" id="add">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"> Add Another</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <label>Process Name</label>
+                </div>
+                <div class="col-lg-4">
+                    <label>Burst Time</label>
+                </div>
+                <div class="col-lg-4" style="display: none" id="atH">
+                    <label>Arrival Time</label>
+                </div>
+            </div>
+            <form class="form-inline" id="form">
                 <div class="row" id="process">
                     <div class="col-lg-4">
                         <label>P1</label>
@@ -44,13 +62,11 @@
                     <div class="col-lg-4">
                         <input type="number" min="1" max="10" class="form-control" id="burstTime1" name="process1">
                     </div>
-                    <div class="btn btn-default" id="add">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true" > Add Another</span>
-                    </div>
                 </div>
             </form>
             <input type="submit" value="Simulate" id="simulate">
         </div>
+        <div class="col-lg-6" id="timer"><h1 id="timet"></h1></div>
     </div>
     <div class="row">
         <div id="canvas"></div>
