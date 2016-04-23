@@ -35,12 +35,17 @@
                 <div class="radio">
                     <label><input type="radio" name="q[1]" id="sjf">Shortest Job First</label>
                 </div>
+                <div class="radio">
+                    <label><input type="radio" name="q[1]" id="rr">Round Robin</label>
+                </div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="row">
-                <div class="btn btn-default" id="add">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"> Add Another</span>
+                <div class="col-lg-6">
+                    <div class="btn btn-default" id="add">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"> Add Another</span>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -66,7 +71,13 @@
             </form>
             <input type="submit" value="Simulate" id="simulate">
         </div>
-        <div class="col-lg-6" id="timer"><h1 id="timet"></h1></div>
+        <div class="col-lg-6" id="timer">
+            <h1 id="timet"></h1>
+            <div class="col-lg-6" id="quantumHolder" style="display: none">
+                <label for="quantum">Quantum Time</label>
+                <input type="number" min="1" max="10" class="form-control" id="quantum" name="quantum">
+            </div>
+        </div>
     </div>
     <div class="row">
         <div id="canvas"></div>

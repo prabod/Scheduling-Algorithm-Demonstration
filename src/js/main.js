@@ -2,11 +2,38 @@ $(document).ready(function () {
     var i = $("#form").size() + 1;
     var selected = "fcfs";
     var interval;
+    var timer;
     $("#sjf").change(
         function () {
             if ($(this).is(':checked')) {
                 selected = "sjf";
                 $("#atH").css("display", "inline");
+                $("#quantumHolder").css("display", "none");
+                $("#form").empty();
+                i = $("#form").size();
+                $("#form").append("" +
+                    "<div class='row' id='process" + i + "'>\
+                        <div class='col-lg-4'>\
+                            <label>P" + i + "</label>\
+                        </div>\
+                        <div class='col-lg-4'>\
+                            <input type='number' min='1' max='10' class='form-control' id='burstTime" + i + "' name='process" + i + "'>\
+                        </div>\
+                        <div class='col-lg-4'>\
+                            <input type='number' min='1' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
+                        </div>\
+                    </div>"
+                );
+                i++;
+            }
+        });
+
+    $("#rr").change(
+        function () {
+            if ($(this).is(':checked')) {
+                selected = "rr";
+                $("#atH").css("display", "inline");
+                $("#quantumHolder").css("display", "inline");
                 $("#form").empty();
                 i = $("#form").size();
                 $("#form").append("" +
@@ -31,6 +58,7 @@ $(document).ready(function () {
             if ($(this).is(':checked')) {
                 selected = "fcfs";
                 $("#atH").css("display", "none");
+                $("#quantumHolder").css("display", "none");
                 $("#form").empty();
                 i = $("#form").size();
                 $("#form").append("" +
@@ -67,7 +95,7 @@ $(document).ready(function () {
 
                 i++;
             }
-            else if (selected === "sjf") {
+            else if (selected === "sjf" || selected === "rr") {
                 $("#form").append("" +
                     "<div class='row' id='process" + i + "'>\
                         <div class='col-lg-4'>\
@@ -98,7 +126,7 @@ $(document).ready(function () {
          */
         $("#barpanel").empty();
         if (!error) {
-            var timer = 1;
+            timer = 1;
             interval = setInterval(function () {
                 $("#timet").text(timer / 60 + "s");
                 timer++
@@ -109,7 +137,11 @@ $(document).ready(function () {
             else if (selected == "fcfs") {
                 FCFS();
             }
+            else if (selected == "rr") {
+                RR();
+            }
         }
+        clearInterval(interval);
     });
 
     function FCFS() {
@@ -136,7 +168,9 @@ $(document).ready(function () {
             console.log(scale * process[j - 1].wt + ' ' + scale * process[j - 1].bt);
             setTimeout(visualize, process[j - 1].wt * 1000, '#bar' + j, process[j - 1]);
         }
-        clearInterval(interval);
+        if (timer == totalTime) {
+            clearInterval(interval);
+        }
     }
 
     function SJF() {
@@ -155,6 +189,11 @@ $(document).ready(function () {
             var j = shortestJob(process, elapsedTime);
             if (j == "no") {
                 elapsedTime++;
+                for (var z = 0; z < process.length; z++) {
+                    if (z != j - 1) {
+                        process[z].wt += 1;
+                    }
+                }
                 continue;
             }
             console.log(j);
@@ -170,7 +209,81 @@ $(document).ready(function () {
             elapsedTime += process[j - 1].bt;
             processDup.push(process.splice(j - 1, 1));
         }
-        console.log();
+        if (timer == totalTime) {
+            clearInterval(interval);
+        }
+    }
+
+
+    function RR() {
+        var process = [];
+        var queue = [];
+        var totalTime = 0;
+        var elapsedTime = 0;
+        var quantum = $("#quantum").val();
+        for (var j = 1; j < i; j++) {
+            var time = $("#burstTime" + j).val();
+            var artime = $("#arrivalTime" + j).val();
+            process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0, "at": artime});
+            var no = process[j - 1].name.replace(/\D/g, '');
+            $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;id='bar" + no + "'></div>");
+            totalTime += parseInt(time);
+        }
+        var processDup = process.slice();
+        var len = process.length;
+        var scale = Math.round(500 / totalTime);
+        var run = false;
+        while (!run) {
+            var j = schedule(process, queue, elapsedTime);
+            if (j == "no") {
+                elapsedTime++;
+                for (var z = 0; z < process.length; z++) {
+                    if (z != j - 1) {
+                        process[z].wt += 1;
+                    }
+                }
+                continue;
+            }
+            else if (j) {
+                run = true;
+            }
+            var exTime = process[j - 1].bt < quantum ? process[j - 1].bt : quantum;
+            for (var z = 0; z < process.length; z++) {
+                if (z != j - 1) {
+                    process[z].wt += exTime;
+                }
+            }
+            alert($("#bar" + no).size());
+            var no = process[j - 1].name.replace(/\D/g, '');
+            $("#bar" + no).append("<div class='row' style='height: 30px;width:" + scale * exTime + "px;margin-left: " + scale * elapsedTime + "px' id='seg" + no + "-" + $("#bar" + no).size() + "'></div>");
+            setTimeout(visualize, process[j - 1].wt * 1000, '#seg' + no + '-' + $("#bar" + no).size() - 1, process[j - 1]);
+            console.log(elapsedTime + ' ' + process[j - 1].bt + ' index');
+            process[j - 1].bt -= exTime;
+            if (process[j - 1].bt == 0) len--;
+            console.log(len);
+            elapsedTime += exTime;
+            process[j - 1].at = elapsedTime;
+        }
+    }
+
+    function schedule(p, q, eTime) {
+        var index = 0;
+        var min = Number.MAX_VALUE;
+        var empty = true;
+        q = p.slice();
+        q.sort(compare);
+        var dequeue = q[0].name;
+        for (var k = 0; k < p.length; k++) {
+            if (p[k].name == dequeue && p[k].bt > 0 && p[k].at <= eTime) {
+                min = p[k].bt;
+                index = k;
+                break;
+            }
+            if (p[k].bt > 0) {
+                empty = false;
+            }
+        }
+        return min == Number.MAX_VALUE ? (empty ? empty : "no") : index + 1;
     }
 
     function shortestJob(p, eTime) {
@@ -221,5 +334,15 @@ $(document).ready(function () {
         bar.animate(1.0);  // Number from 0.0 to 1.0
 
     }
+
+    function compare(a, b) {
+        if (a.at < b.at)
+            return 1;
+        else if (a.at > b.at)
+            return -1;
+        else
+            return 0;
+    }
+
 });
 
