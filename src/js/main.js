@@ -180,7 +180,7 @@ $(document).ready(function () {
         for (var j = 1; j < i; j++) {
             var time = $("#burstTime" + j).val();
             var artime = $("#arrivalTime" + j).val();
-            process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0, "at": artime});
+            process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0, "at": parseInt(artime)});
             totalTime += parseInt(time);
         }
         var processDup = [];
@@ -220,13 +220,13 @@ $(document).ready(function () {
         var queue = [];
         var totalTime = 0;
         var elapsedTime = 0;
-        var quantum = $("#quantum").val();
+        var quantum = parseInt($("#quantum").val());
         for (var j = 1; j < i; j++) {
             var time = $("#burstTime" + j).val();
             var artime = $("#arrivalTime" + j).val();
-            process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0, "at": artime});
+            process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0, "at": parseInt(artime)});
             var no = process[j - 1].name.replace(/\D/g, '');
-            $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;id='bar" + no + "'></div>");
+            $("#barpanel").append("<div class='row' id='bar" + no + "'></div>");
             totalTime += parseInt(time);
         }
         var processDup = process.slice();
@@ -253,16 +253,20 @@ $(document).ready(function () {
                     process[z].wt += exTime;
                 }
             }
-            alert($("#bar" + no).size());
             var no = process[j - 1].name.replace(/\D/g, '');
-            $("#bar" + no).append("<div class='row' style='height: 30px;width:" + scale * exTime + "px;margin-left: " + scale * elapsedTime + "px' id='seg" + no + "-" + $("#bar" + no).size() + "'></div>");
-            setTimeout(visualize, process[j - 1].wt * 1000, '#seg' + no + '-' + $("#bar" + no).size() - 1, process[j - 1]);
+            $("#bar" + no).append("<div class='row' style='height: 30px;width:" + scale * exTime + "px;margin-left: " + scale * elapsedTime + "px' id='seg" + no + "-" + elapsedTime + "'></div>");
+            setTimeout(visualize, process[j - 1].wt * 1000, '#seg' + no + '-' + elapsedTime, process[j - 1]);
             console.log(elapsedTime + ' ' + process[j - 1].bt + ' index');
             process[j - 1].bt -= exTime;
-            if (process[j - 1].bt == 0) len--;
+            if (process[j - 1].bt == 0){
+                len--;
+            }
+            else {
+                process[j - 1].at = elapsedTime;
+            }
             console.log(len);
             elapsedTime += exTime;
-            process[j - 1].at = elapsedTime;
+
         }
     }
 
@@ -272,9 +276,11 @@ $(document).ready(function () {
         var empty = true;
         q = p.slice();
         q.sort(compare);
+        console.log(q);
         var dequeue = q[0].name;
         for (var k = 0; k < p.length; k++) {
             if (p[k].name == dequeue && p[k].bt > 0 && p[k].at <= eTime) {
+                console.log(dequeue+'deq');
                 min = p[k].bt;
                 index = k;
                 break;
@@ -283,7 +289,7 @@ $(document).ready(function () {
                 empty = false;
             }
         }
-        return min == Number.MAX_VALUE ? (empty ? empty : "no") : index + 1;
+        return min == Number.MAX_VALUE ? (empty ? "true" : "no") : index + 1;
     }
 
     function shortestJob(p, eTime) {
@@ -327,7 +333,7 @@ $(document).ready(function () {
                 svgStyle: {width: '100%', height: '100%'},
                 from: {color: '#FFEA82'},
                 to: {color: '#ED6A5A'},
-                step: (state, bar) = > {
+                step: (state, bar) => {
                 bar.path.setAttribute('stroke', state.color);
     }
     })
@@ -337,9 +343,9 @@ $(document).ready(function () {
 
     function compare(a, b) {
         if (a.at < b.at)
-            return 1;
-        else if (a.at > b.at)
             return -1;
+        else if (a.at > b.at)
+            return 1;
         else
             return 0;
     }
