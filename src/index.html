@@ -86,24 +86,20 @@
            <!-- <input type="submit" value="Simulate" id="simulate"> -->
         </div>
         <div class="col-lg-6" id="timer">
-            <h1 id="timet"></h1>
             <div class="col-lg-6" id="quantumHolder" style="display: none">
                 <label for="quantum">Quantum Time</label>
                 <input type="number" min="1" max="10" class="form-control" id="quantum" name="quantum">
             </div>
         </div>
 
-    <div class="row">
-        <div id="canvas"></div>
-    </div>
-
-    <div class="row" id="barpanel" style="margin-top: 5px"></div>
+    <div class="row" id="barpanel" style="margin-top: 5px;margin-left: 8px"></div>
+    <div class="row" id="timeline"></div>
 </div>
 
 <script src="js/jquery.min.js"></script>
 <script src="js/plugins.js"></script>
-<script src="js/main.js"></script>
 <script src="js/bootstrap.min.js"></script>
-
+<script src="js/d3.min.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

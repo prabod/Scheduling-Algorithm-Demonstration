@@ -23,7 +23,7 @@ $(document).ready(function () {
                             <input type='number' min='1' max='10' class='form-control' id='burstTime" + i + "' name='process" + i + "'>\
                         </div>\
                         <div class='col-lg-4'>\
-                            <input type='number' min='1' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
+                            <input type='number' min='0' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
                         </div>\
                     </div>"
                 );
@@ -49,7 +49,7 @@ $(document).ready(function () {
                             <input type='number' min='1' max='10' class='form-control' id='burstTime" + i + "' name='process" + i + "'>\
                         </div>\
                         <div class='col-lg-4'>\
-                            <input type='number' min='1' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
+                            <input type='number' min='0' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
                         </div>\
                     </div>"
                 );
@@ -109,7 +109,7 @@ $(document).ready(function () {
                             <input type='number' min='1' max='10' class='form-control' id='burstTime" + i + "' name='process" + i + "'>\
                         </div>\
                         <div class='col-lg-4'>\
-                            <input type='number' min='1' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
+                            <input type='number' min='0' max='50' class='form-control' id='arrivalTime" + i + "' name='at" + i + "'>\
                         </div>\
                     </div>"
                 );
@@ -131,7 +131,7 @@ $(document).ready(function () {
                 }
             if(selected ==="sjf" || selected==="rr"){
                 if(art >50 ){
-                    alert("Arrive time should be less than 50s !")
+                    alert("Arrive time should be less than 50s !");
                     error = true;
                     break;
                 }
@@ -148,10 +148,6 @@ $(document).ready(function () {
 
 
                 }
-
-
-
-
         /*for(var k =1;k<=i;k++){
          if(!$("burstTime"+k).val()){
          $("burstTime"+k).addClass('warning');
@@ -160,6 +156,7 @@ $(document).ready(function () {
          }\
          */
         $("#barpanel").empty();
+        $("#timeline").empty();
         if (!error) {
             if (selected == "sjf") {
                 SJF();
@@ -192,6 +189,10 @@ $(document).ready(function () {
             }
         }
         var scale = Math.round(500 / totalTime);
+        var svgContainer = d3.select("#timeline").append("svg").attr("width", 710).attr("height", 100);
+        var axisScale = d3.scale.linear().domain([0, parseInt(Math.round(6.9 * totalTime / 5))]).range([10, 700]);
+        var xAxis = d3.svg.axis().scale(axisScale);
+        var xAxisGroup = svgContainer.append("g").call(xAxis);
         for (var j = 1; j < i; j++) {
             $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;width:" + scale * process[j - 1].bt + "px;margin-left: " + scale * process[j - 1].wt + "px' id='bar" + j + "'></div>");
             console.log(scale * process[j - 1].wt + ' ' + scale * process[j - 1].bt);
@@ -211,6 +212,10 @@ $(document).ready(function () {
         }
         var processDup = [];
         var scale = Math.round(500 / totalTime);
+        var svgContainer = d3.select("#timeline").append("svg").attr("width", 710).attr("height", 100);
+        var axisScale = d3.scale.linear().domain([0, parseInt(Math.round(6.9 * totalTime / 5))]).range([10, 700]);
+        var xAxis = d3.svg.axis().scale(axisScale);
+        var xAxisGroup = svgContainer.append("g").call(xAxis);
         while (process.length > 0) {
             var j = shortestJob(process, elapsedTime);
             if (j == "no") {
@@ -254,8 +259,14 @@ $(document).ready(function () {
         }
         var processDup = process.slice();
         var len = process.length;
-        var scale = Math.round(500 / totalTime);
+        var scale = Math.floor(500 / totalTime);
         var run = false;
+
+        var svgContainer = d3.select("#timeline").append("svg").attr("width", 710).attr("height", 100);
+        var axisScale = d3.scale.linear().domain([0, parseInt(Math.round(6.9 * totalTime / 5))]).range([10, 700]);
+        var xAxis = d3.svg.axis().scale(axisScale);
+        var xAxisGroup = svgContainer.append("g").call(xAxis);
+
         queue = process.slice();
         queue.sort(compare);
         while (queue.length > 0) {
@@ -273,7 +284,6 @@ $(document).ready(function () {
                         }
                         firstItem = queue[0];
                         j = firstItem.name.replace(/\D/g, '');
-                        console.log(j + 'nooo');
                         break;
                     }
                 }
@@ -318,27 +328,6 @@ $(document).ready(function () {
         }
     }
 
-    function schedule(p, q, eTime) {
-        var index = 0;
-        var min = Number.MAX_VALUE;
-        var empty = true;
-        q = p.slice();
-        q.sort(compare);
-        console.log(q);
-        var dequeue = q[0].name;
-        for (var k = 0; k < p.length; k++) {
-            if (p[k].name == dequeue && p[k].bt > 0 && p[k].at <= eTime) {
-                console.log(dequeue+'deq');
-                min = p[k].bt;
-                index = k;
-                break;
-            }
-            if (p[k].bt > 0) {
-                empty = false;
-            }
-        }
-        return min == Number.MAX_VALUE ? (empty ? "true" : "no") : index + 1;
-    }
 
     function shortestJob(p, eTime) {
         var index = 0;
