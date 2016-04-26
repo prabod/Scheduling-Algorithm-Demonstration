@@ -3,10 +3,13 @@ $(document).ready(function () {
     var selected = "fcfs";
     var interval;
     var timer;
-    $("#sjf").change(
+    $("#sjf").click(
         function () {
-            if ($(this).is(':checked')) {
+            //if ($(this).is(':checked')) {
                 selected = "sjf";
+            $(this).addClass("active");
+            $("#rr").removeClass("active");
+            $("#fcfs").removeClass("active");
                 $("#atH").css("display", "inline");
                 $("#quantumHolder").css("display", "none");
                 $("#form").empty();
@@ -25,13 +28,16 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            }
+            //}
         });
 
-    $("#rr").change(
+    $("#rr").click(
         function () {
-            if ($(this).is(':checked')) {
+            //if ($(this).is(':checked')) {
                 selected = "rr";
+            $(this).addClass("active");
+            $("#sjf").removeClass("active");
+            $("#fcfs").removeClass("active");
                 $("#atH").css("display", "inline");
                 $("#quantumHolder").css("display", "inline");
                 $("#form").empty();
@@ -50,13 +56,16 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            }
+            //}
         });
 
-    $("#fcfs").change(
+    $("#fcfs").click(
         function () {
-            if ($(this).is(':checked')) {
+            //if ($(this).is(':checked')) {
                 selected = "fcfs";
+            $(this).addClass("active");
+            $("#rr").removeClass("active");
+            $("#sjf").removeClass("active");
                 $("#atH").css("display", "none");
                 $("#quantumHolder").css("display", "none");
                 $("#form").empty();
@@ -74,7 +83,7 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            }
+            //}
         });
 
     $("#add").click(function () {
@@ -126,11 +135,6 @@ $(document).ready(function () {
          */
         $("#barpanel").empty();
         if (!error) {
-            timer = 1;
-            interval = setInterval(function () {
-                $("#timet").text(timer / 60 + "s");
-                timer++
-            }, 1000 / 60);
             if (selected == "sjf") {
                 SJF();
             }
@@ -141,7 +145,6 @@ $(document).ready(function () {
                 RR();
             }
         }
-        clearInterval(interval);
     });
 
     function FCFS() {
@@ -162,14 +165,11 @@ $(document).ready(function () {
                 process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0});
             }
         }
-        var scale = Math.round(500 / totalTime);
+        var scale = Math.round(960 / totalTime);
         for (var j = 1; j < i; j++) {
             $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;width:" + scale * process[j - 1].bt + "px;margin-left: " + scale * process[j - 1].wt + "px' id='bar" + j + "'></div>");
             console.log(scale * process[j - 1].wt + ' ' + scale * process[j - 1].bt);
             setTimeout(visualize, process[j - 1].wt * 1000, '#bar' + j, process[j - 1]);
-        }
-        if (timer == totalTime) {
-            clearInterval(interval);
         }
     }
 
@@ -209,9 +209,6 @@ $(document).ready(function () {
             elapsedTime += process[j - 1].bt;
             processDup.push(process.splice(j - 1, 1));
         }
-        if (timer == totalTime) {
-            clearInterval(interval);
-        }
     }
 
 
@@ -233,39 +230,47 @@ $(document).ready(function () {
         var len = process.length;
         var scale = Math.round(500 / totalTime);
         var run = false;
-        while (!run) {
-            var j = schedule(process, queue, elapsedTime);
-            if (j == "no") {
+        queue = process.slice();
+        queue.sort(compare);
+        while (queue.length > 0) {
+            var firstItem = queue[0];
+            var j = firstItem.bt > 0 && firstItem.at <= elapsedTime ?
+                firstItem.name.replace(/\D/g, '') : "no";
+            console.log("j :" + j);
+            if (j == "no" && !queue.length > 0) {
                 elapsedTime++;
-                for (var z = 0; z < process.length; z++) {
+                for (var z = 0; z < queue.length; z++) {
                     if (z != j - 1) {
-                        process[z].wt += 1;
+                        queue[z].wt += 1;
                     }
                 }
                 continue;
+
             }
-            else if (j) {
-                run = true;
+            firstItem = queue.shift();
+            var executionTime = firstItem.bt < quantum ? firstItem.bt : quantum;
+            for (var z = 0; z < queue.length; z++) {
+                queue[z].wt += executionTime;
             }
-            var exTime = process[j - 1].bt < quantum ? process[j - 1].bt : quantum;
-            for (var z = 0; z < process.length; z++) {
-                if (z != j - 1) {
-                    process[z].wt += exTime;
-                }
-            }
-            var no = process[j - 1].name.replace(/\D/g, '');
-            $("#bar" + no).append("<div class='row' style='height: 30px;width:" + scale * exTime + "px;margin-left: " + scale * elapsedTime + "px' id='seg" + no + "-" + elapsedTime + "'></div>");
-            setTimeout(visualize, process[j - 1].wt * 1000, '#seg' + no + '-' + elapsedTime, process[j - 1]);
+            var no = firstItem.name.replace(/\D/g, '');
+            $("#bar" + no).append("" +
+                "<div " +
+                "style='height: 30px;float:left; position: absolute;" +
+                "width:" + scale * executionTime + "px;" +
+                "left: " + scale * elapsedTime + "px' " +
+                "id='seg" + no + "-" + elapsedTime + "'>" +
+                "</div>"
+            );
+            setTimeout(visualize, firstItem.wt * 1000, '#seg' + no + '-' + elapsedTime, firstItem);
             console.log(elapsedTime + ' ' + process[j - 1].bt + ' index');
-            process[j - 1].bt -= exTime;
-            if (process[j - 1].bt == 0){
-                len--;
-            }
-            else {
-                process[j - 1].at = elapsedTime;
+            firstItem.bt -= executionTime;
+            elapsedTime += executionTime;
+            if (firstItem.bt != 0) {
+                firstItem.at = elapsedTime;
+                queue.push(firstItem);
             }
             console.log(len);
-            elapsedTime += exTime;
+
 
         }
     }
@@ -304,25 +309,22 @@ $(document).ready(function () {
         return min == Number.MAX_VALUE ? "no" : index + 1;
     }
 
-    function visualize(container, duration) {
+    function visualize(container, item) {
         var bar = new ProgressBar.Line(container, {
                 strokeWidth: 4,
                 easing: 'easeInOut',
-                duration: duration.bt * 1000,
+                duration: item.bt * 1000,
                 color: '#FFEA82',
                 text: {
-                    value: duration.name,
+                    value: item.name,
                     className: 'progressbar__label',
                     style: {
-                        // Text color.
-                        // Default: same as stroke color (options.color)
                         color: '#000',
                         position: 'absolute',
                         left: '50%',
                         top: '50%',
                         padding: 0,
                         margin: 0,
-                        // You can specify styles which will be browser prefixed
                         transform: {
                             prefix: true,
                             value: 'translate(-50%, -50%)'
