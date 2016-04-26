@@ -16,6 +16,12 @@
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
     <script src="js/two.min.js"></script>
     <script src="js/progressbar.js"></script>
+    <style>
+        ul li{
+            margin-right: 200px;
+        }
+
+    </style>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -24,23 +30,31 @@
 <![endif]-->
 
 <!-- Add your site or application content here -->
-<div class="container">
+<div class="container"style="margin-bottom: 30px;">
+    <div class="jumbotron">
     <h1 class="text-center">Operating Systems Scheduling Demonstration</h1>
+        </div>
     <div class="row">
-        <div class="row">
+        <center>
+        <div class="col-md-4 col-sm-12"><button class="btn-lg btn-info" onclick="event.preventDefault()" id="fcfs"> First Come First Serve </button> </div>
+        <div class="col-md-4 col-sm-12"><button class="btn-lg btn-info" onclick="event.preventDefault()" id="sjf">Shortest Job First </button> </div>
+        <div class="col-md-4 col-sm-12"><button class="btn-lg btn-info" onclick="event.preventDefault()" id="rr">Round Robin </button> </div>
+        <!--<div class="row">
             <ul class="nav nav-pills">
                 <li class="active" id="fcfs"><a href="#" onclick="event.preventDefault();">First Come First Serve</a>
                 </li>
                 <li id="sjf"><a href="#" onclick="event.preventDefault();">Shortest Job First</a></li>
                 <li id="rr"><a href="#" onclick="event.preventDefault();">Round Robin</a></li>
             </ul>
+        </div>-->
+        </center>
         </div>
         <br>
         <div class="col-lg-6">
             <div class="row">
-                <div class="col-lg-6">
-                    <div class="btn btn-default" id="add">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"> Add Another</span>
+                <div class="col-lg-6" style="margin-bottom: 20px">
+                    <div class="btn btn-success" id="add">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Another
                     </div>
                 </div>
             </div>
@@ -61,11 +75,15 @@
                         <label>P1</label>
                     </div>
                     <div class="col-lg-4">
+
+
                         <input type="number" min="1" max="10" class="form-control" id="burstTime1" name="process1">
+
                     </div>
                 </div>
             </form>
-            <input type="submit" value="Simulate" id="simulate">
+            <button class="btn btn-success" id="simulate">Simulate</button>
+           <!-- <input type="submit" value="Simulate" id="simulate"> -->
         </div>
         <div class="col-lg-6" id="timer">
             <h1 id="timet"></h1>
@@ -74,7 +92,7 @@
                 <input type="number" min="1" max="10" class="form-control" id="quantum" name="quantum">
             </div>
         </div>
-    </div>
+
     <div class="row">
         <div id="canvas"></div>
     </div>

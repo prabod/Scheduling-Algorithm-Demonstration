@@ -1,5 +1,6 @@
 $(document).ready(function () {
     var i = $("#form").size() + 1;
+    var form_size = i;
     var selected = "fcfs";
     var interval;
     var timer;
@@ -126,6 +127,37 @@ $(document).ready(function () {
     $("#simulate").click(function (e) {
         e.preventDefault();
         var error = false;
+        for(var j=1; j<=form_size+1;j++){
+                var brst = $("#burstTime"+j).val();
+                var art = $("#arrivalTime"+j).val();
+                if(brst>10 ||brst<1) {
+                    alert("Burst time should be between 1 and 10 !");
+                    error = true;
+                    break;
+                }
+            if(selected ==="sjf" || selected==="rr"){
+                if(art >50 ){
+                    alert("Arrive time should be less than 50s !")
+                    error = true;
+                    break;
+                }
+            }
+
+            if(selected==="rr"){
+                if($("#quantum").val()>10 || $("#quantum").val()<1){
+                    alert("Quantum time should be between 1 and 10 !");
+                    error=true;
+                    break;
+                }
+
+            }
+
+
+                }
+
+
+
+
         /*for(var k =1;k<=i;k++){
          if(!$("burstTime"+k).val()){
          $("burstTime"+k).addClass('warning');
