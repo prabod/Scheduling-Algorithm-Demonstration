@@ -5,7 +5,6 @@ $(document).ready(function () {
     var timer;
     $("#sjf").click(
         function () {
-            //if ($(this).is(':checked')) {
                 selected = "sjf";
             $(this).addClass("active");
             $("#rr").removeClass("active");
@@ -28,12 +27,10 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            //}
         });
 
     $("#rr").click(
         function () {
-            //if ($(this).is(':checked')) {
                 selected = "rr";
             $(this).addClass("active");
             $("#sjf").removeClass("active");
@@ -56,12 +53,10 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            //}
         });
 
     $("#fcfs").click(
         function () {
-            //if ($(this).is(':checked')) {
                 selected = "fcfs";
             $(this).addClass("active");
             $("#rr").removeClass("active");
@@ -83,7 +78,6 @@ $(document).ready(function () {
                     </div>"
                 );
                 i++;
-            //}
         });
 
     $("#add").click(function () {
@@ -165,7 +159,7 @@ $(document).ready(function () {
                 process.push({"name": "P" + j, "bt": parseInt(time), "wt": 0});
             }
         }
-        var scale = Math.round(960 / totalTime);
+        var scale = Math.round(500 / totalTime);
         for (var j = 1; j < i; j++) {
             $("#barpanel").append("<div class='row' style='height: 30px;margin-top: 5px;width:" + scale * process[j - 1].bt + "px;margin-left: " + scale * process[j - 1].wt + "px' id='bar" + j + "'></div>");
             console.log(scale * process[j - 1].wt + ' ' + scale * process[j - 1].bt);
@@ -236,16 +230,30 @@ $(document).ready(function () {
             var firstItem = queue[0];
             var j = firstItem.bt > 0 && firstItem.at <= elapsedTime ?
                 firstItem.name.replace(/\D/g, '') : "no";
-            console.log("j :" + j);
-            if (j == "no" && !queue.length > 0) {
-                elapsedTime++;
-                for (var z = 0; z < queue.length; z++) {
-                    if (z != j - 1) {
-                        queue[z].wt += 1;
+            if (j == "no") {
+                var found = false;
+                for (var t = 0; t < queue.length; t++) {
+                    if (queue[t].at <= elapsedTime) {
+                        found = true;
+                        for (var y = 0; y < t; y++) {
+                            var foo = queue.shift();
+                            queue.push(foo);
+                        }
+                        firstItem = queue[0];
+                        j = firstItem.name.replace(/\D/g, '');
+                        console.log(j + 'nooo');
+                        break;
                     }
                 }
-                continue;
-
+                if (!found) {
+                    elapsedTime++;
+                    for (var z = 0; z < queue.length; z++) {
+                        if (z != j - 1) {
+                            queue[z].wt += 1;
+                        }
+                    }
+                    continue;
+                }
             }
             firstItem = queue.shift();
             var executionTime = firstItem.bt < quantum ? firstItem.bt : quantum;
@@ -253,23 +261,26 @@ $(document).ready(function () {
                 queue[z].wt += executionTime;
             }
             var no = firstItem.name.replace(/\D/g, '');
+            var exWidth = 0;
+            $("#bar" + no).children('div').each(function () {
+                exWidth += $(this).width();
+            });
+            var width = (scale * elapsedTime) - exWidth;
             $("#bar" + no).append("" +
                 "<div " +
                 "style='height: 30px;float:left; position: absolute;" +
                 "width:" + scale * executionTime + "px;" +
-                "left: " + scale * elapsedTime + "px' " +
+                "left: " + width + "px' " +
                 "id='seg" + no + "-" + elapsedTime + "'>" +
                 "</div>"
             );
-            setTimeout(visualize, firstItem.wt * 1000, '#seg' + no + '-' + elapsedTime, firstItem);
-            console.log(elapsedTime + ' ' + process[j - 1].bt + ' index');
+            setTimeout(visualize, elapsedTime * 1000, '#seg' + no + '-' + elapsedTime, firstItem);
             firstItem.bt -= executionTime;
             elapsedTime += executionTime;
             if (firstItem.bt != 0) {
                 firstItem.at = elapsedTime;
                 queue.push(firstItem);
             }
-            console.log(len);
 
 
         }
